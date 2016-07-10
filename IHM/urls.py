@@ -5,4 +5,5 @@ from IHM import views
 urlpatterns = [
         url(r'^index$',                                          view=views.index,      name='index'),
         url(r'^index$',                                          view=views.index,      name='index'),
+        url(r'^settings$',                                          view=views.settings,      name='settings'),
 ]
