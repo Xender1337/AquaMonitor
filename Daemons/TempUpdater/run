@@ -1,0 +1,7 @@
+#!/bin/sh
+
+export LC_ALL="C"
+export PYTHONIOENCODING=UTF-8
+cd /home/pi/AquaMonitor
+python TempUpdater.py
+sleep 60

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export LC_ALL="C"
+export PYTHONIOENCODING=UTF-8
+cd /home/pi/AquaMonitor
+exec python2.7 manage.py runserver 192.168.1.69:8000
