@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+      <base href="http://www.highcharts.com/stock/demo/compare" />
+  <title> Compare multiple series | Highcharts</title>
+  <script src="/lib/jquery-1.7.2.js" type="text/javascript"></script>
+  <script type="text/javascript">
+jQuery.noConflict();
+
+var example = 'data-grouping',
+theme = 'default';
+
+(function($){ // encapsulate jQuery
+	$(function () {
+
+    $.getJSON('http://192.168.1.69:8000/ihm/json', function (data) {
+
+        // Create a timer
+        var start = +new Date();
+
+        // Create the chart
+        $('#container').highcharts('StockChart', {
+            chart: {
+                events: {
+                    load: function () {
+                        if (!window.isComparing) {
+                            this.setTitle(null, {
+                                text: 'Built chart in ' + (new Date() - start) + 'ms'
+                            });
+                        }
+                    }
+                },
+                zoomType: 'x'
+            },
+
+            rangeSelector: {
+
+                buttons: [{
+                    type: 'day',
+                    count: 3,
+                    text: '3d'
+                }, {
+                    type: 'week',
+                    count: 1,
+                    text: '1w'
+                }, {
+                    type: 'month',
+                    count: 1,
+                    text: '1m'
+                }, {
+                    type: 'month',
+                    count: 6,
+                    text: '6m'
+                }, {
+                    type: 'year',
+                    count: 1,
+                    text: '1y'
+                }, {
+                    type: 'all',
+                    text: 'All'
+                }],
+                selected: 3
+            },
+
+            yAxis: {
+                title: {
+                    text: 'Temperature (°C)'
+                }
+            },
+
+            title: {
+                text: 'Temperature chambre renan'
+            },
+
+            subtitle: {
+                text: 'Built chart in ...' // dummy text to reserve space for dynamic subtitle
+            },
+
+            series: [{
+                name: 'Température Extérieur',
+                data: data.data1,
+                tooltip: {
+                    valueDecimals: 1,
+                    valueSuffix: '°C'
+                }},
+                {
+
+                name: 'Temperature 2',
+                data: data.data2,
+                tooltip: {
+                    valueDecimals: 1,
+                    valueSuffix: '°C'
+                }},
+                {
+
+                name: 'Température Aquarium',
+                data: data.data3,
+                tooltip: {
+                    valueDecimals: 1,
+                    valueSuffix: '°C'
+                }
+            }]
+
+        });
+    });
+});
+})(jQuery);
+  </script>
+
+    <body >
+        <script src="https://code.highcharts.com/stock/highstock.js"></script>
+        <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+        <div id="container" style="height: 400px; min-width: 310px"></div>
+	</body>
+</html>
