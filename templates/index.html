@@ -1,116 +1,158 @@
-
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 	<head>
-      <base href="http://www.highcharts.com/stock/demo/compare" />
-  <title> Compare multiple series | Highcharts</title>
-  <script src="/lib/jquery-1.7.2.js" type="text/javascript"></script>
-  <script type="text/javascript">
-jQuery.noConflict();
+        <title> Aquarium Monitor</title>
+        <link rel="icon" type="image/png" href="{% static "logo.png" %}" />
+        <meta http-equiv="refresh" content="300" >
+        <script src="{% static "jquery.min.js" %}" type="text/javascript"></script>
+        <script src="{% static "bootstrap-slider.min.js"%}"></script>
+        <script src="{% static "highstock.js"%}"></script>
+        <script src="{% static "exporting.js"%}"></script>
+        <script src="{% static "dark_theme.js"%}"></script>
+    </head>
 
-var example = 'data-grouping',
-theme = 'default';
+    <body style="background:#404043;">
+        <h1 style="text-align: center; vertical-align: middle; font-family: 'Comic Sans MS', 'SansSerif'; color: aliceblue; line-height: 20px;"> Aqua Monitor</h1>
+        {% for key, probe_values in probe_temps.iteritems %}
+        <div style="display: inline-block; margin-right: 10%; margin-left: 1%; vertical-align: middle; font-family: 'Comic Sans MS', 'SansSerif'; color: {{ probe_color.pop }};">
+                {{ key }}<br>
+                {% for key_value, a_value in probe_values.iteritems %}
+                    {% if key_value == "Max" %}
+                        <div style="color: indianred">
+                        {{ key_value }} : {{ a_value }} °c<br>
+                        </div>
+                    {% elif key_value == "Min" %}
+                        <div style="color: cornflowerblue">
+                        {{ key_value }} : {{ a_value }} °c<br>
+                        </div>
+                    {% else %}
+                        <div style="color: lightgray">
+                        {{ key_value }} : {{ a_value }} °c<br>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+        </div>
+        {% endfor %}
+        <div style="display: inline-block; margin-right: 10%; margin-left: 1%; vertical-align: middle; font-family: 'Comic Sans MS', 'SansSerif';">
+        Last update : {{ last_update }}
+        </div>
+        <div id="container" style="height: 400px; min-width: 310px; margin: 1%"></div>
+    </body>
 
-(function($){ // encapsulate jQuery
-	$(function () {
+    <script type="text/javascript">
+    jQuery.noConflict();
 
-    $.getJSON('http://192.168.1.69:8000/ihm/json', function (data) {
+    var example = 'data-grouping',
+    theme = 'default';
+
+    (function($){ // encapsulate jQuery
+        $(function () {
 
         // Create a timer
         var start = +new Date();
 
-        // Create the chart
-        $('#container').highcharts('StockChart', {
-            chart: {
-                events: {
-                    load: function () {
-                        if (!window.isComparing) {
-                            this.setTitle(null, {
-                                text: 'Built chart in ' + (new Date() - start) + 'ms'
-                            });
+        $.getJSON('http://aqua.xenx.fr/ihm/json', function (data) {
+
+
+
+            // Create the chart
+            $('#container').highcharts('StockChart', {
+                chart: {
+                    events: {
+                        load: function () {
+                            if (!window.isComparing) {
+                                this.setTitle(null, {
+                                    text: 'Built chart in ' + (new Date() - start) + 'ms'
+                                });
+                            }
                         }
+                    },
+                    zoomType: 'x'
+                },
+
+                rangeSelector: {
+
+                    buttons: [{
+                        type: 'hour',
+                        count: 12,
+                        text: '12h'
+                    },{
+                        type: 'day',
+                        count: 1,
+                        text: '1d'
+                    },{
+                        type: 'day',
+                        count: 3,
+                        text: '3d'
+                    }, {
+                        type: 'week',
+                        count: 1,
+                        text: '1w'
+                    }, {
+                        type: 'month',
+                        count: 1,
+                        text: '1m'
+                    }, {
+                        type: 'month',
+                        count: 8,
+                        text: '8m'
+                    }, {
+                        type: 'year',
+                        count: 1,
+                        text: '1y'
+                    }, {
+                        type: 'all',
+                        text: 'All'
+                    }],
+                    selected: 1
+                },
+
+                yAxis: {
+                    title: {
+                        text: 'Temperature (°C)'
                     }
                 },
-                zoomType: 'x'
-            },
 
-            rangeSelector: {
-
-                buttons: [{
-                    type: 'day',
-                    count: 3,
-                    text: '3d'
-                }, {
-                    type: 'week',
-                    count: 1,
-                    text: '1w'
-                }, {
-                    type: 'month',
-                    count: 1,
-                    text: '1m'
-                }, {
-                    type: 'month',
-                    count: 6,
-                    text: '6m'
-                }, {
-                    type: 'year',
-                    count: 1,
-                    text: '1y'
-                }, {
-                    type: 'all',
-                    text: 'All'
-                }],
-                selected: 3
-            },
-
-            yAxis: {
                 title: {
-                    text: 'Temperature (°C)'
-                }
-            },
+                    text: 'Temperature chambre'
+                },
 
-            title: {
-                text: 'Temperature chambre renan'
-            },
+                subtitle: {
+                    text: 'Built chart in ...' // dummy text to reserve space for dynamic subtitle
+                },
 
-            subtitle: {
-                text: 'Built chart in ...' // dummy text to reserve space for dynamic subtitle
-            },
+                series: [{
+                    name: 'Temperature Exterieur',
+                    data: data.data1,
+                    tooltip: {
+                        valueDecimals: 1,
+                        valueSuffix: '°C'
+                    }},
+                    {
 
-            series: [{
-                name: 'Température Extérieur',
-                data: data.data1,
-                tooltip: {
-                    valueDecimals: 1,
-                    valueSuffix: '°C'
-                }},
-                {
+                    name: 'Temperature Gallery',
+                    data: data.data2,
+                    tooltip: {
+                        valueDecimals: 1,
+                        valueSuffix: '°C'
+                    }},
+                    {
 
-                name: 'Temperature 2',
-                data: data.data2,
-                tooltip: {
-                    valueDecimals: 1,
-                    valueSuffix: '°C'
-                }},
-                {
+                    name: 'Temperature Aquarium',
+                    data: data.data3,
+                    tooltip: {
+                        valueDecimals: 1,
+                        valueSuffix: '°C'
+                    }
+                }]
 
-                name: 'Température Aquarium',
-                data: data.data3,
-                tooltip: {
-                    valueDecimals: 1,
-                    valueSuffix: '°C'
-                }
-            }]
-
+            });
         });
     });
-});
-})(jQuery);
-  </script>
+    })(jQuery);
 
-    <body >
-        <script src="https://code.highcharts.com/stock/highstock.js"></script>
-        <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-        <div id="container" style="height: 400px; min-width: 310px"></div>
-	</body>
+
+
+    </script>
 </html>
