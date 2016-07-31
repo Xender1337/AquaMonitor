@@ -20,4 +20,5 @@ import IHM.urls
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^ihm/', include('IHM.urls')),
+    url(r'^', include('IHM.urls')),
 ]
